@@ -33,7 +33,7 @@ class construct(MovingCameraScene):
         c = Circle(radius=.35)
         text = MathTex(f"curr = {0}", color=RED, font_size=25)
         self.add(text)
-        
+
         text.move_to(g.vertices[0].get_center() + RIGHT)
 
         self.play(c.animate.move_to(g.vertices[0].get_center()))
@@ -83,7 +83,8 @@ class construct(MovingCameraScene):
         self.play(g.vertices[7].animate.shift(LEFT + DOWN))
         self.play(c.animate.move_to(g.vertices[7].get_center()))
 
-        self.remove(text)
+        if (text):
+            self.remove(text)
 
         text = MathTex(f"curr = 7", color=RED, font_size=25)
         text.move_to(g.vertices[7].get_center() + RIGHT)
@@ -138,12 +139,15 @@ class construct(MovingCameraScene):
         g._add_edge((3,10))
         self.remove(text)
 
+        # Traverse Example
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         text = MathTex(f"curr = 0", color=RED, font_size=25)
         text.move_to(g.vertices[0].get_center() + RIGHT)
         self.add(text)
         self.play(c.animate.move_to(g.vertices[0].get_center()))
         self.wait()
         self.remove(text)
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         
         text = MathTex(f"curr = 2", color=RED, font_size=25)
         text.move_to(g.vertices[2].get_center() + RIGHT)
