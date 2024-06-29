@@ -7,6 +7,7 @@
 # Operations: add(), remove(), get()
 
 
+import math
 from manim import *
 
 from BSTNode import BSTNode
@@ -17,7 +18,7 @@ class BST:
     # Node properties
     DEPTH = 2
     CHILDREN_PER_VERTEX = 2
-    LAYOUT_CONFIG = {"vertex_spacing": (0.001, 1)}
+    LAYOUT_CONFIG = {"vertex_spacing": (0.0001, .5)}
     VERTEX_CONF = {"radius": 0.35, "color": WHITE}
 
     # BST representation as a graph
@@ -25,8 +26,9 @@ class BST:
     edges = set()
 
     # Start with empty BST node
-    root = BSTNode(None)
+    root = None
     scene = None
+    height = -1
     
     
     # Initial empty Graph object
@@ -35,38 +37,55 @@ class BST:
 
     def __init__(self, scene):
         self.scene = scene
+        self.height = -1
 
     # Adds value to a BST 
     # Time Complexity: Average: O(logn) Worst: O(n)
     # Author: Ben Zwolenik 
-    # Version: 1.0
+    # Version: 1.0 
     # Date Created: 5/8/2024 @ 10:20 CST 
     # Params: self (the current BST object), val (the integer value of the new node), parent (the parent node to create edge) NOT NEEDED IN ACTUAL IMPLEMENTATION
     def add(self, val):
-        if (val == None):
+        if (val == None):  
             return
-        self._addHelper(self.root, val, None, None)
+        currHeight = self.height
 
-    def _addHelper(self, curr, val, parent, text):
+        self.root = self._addHelper(self.root, val, None, None, '', self.height)
+
+        if (currHeight < self.height and self.height > 1):
+            shift = 2 ** (currHeight - 1)
+            self.shiftTree(self.root.left, shift, 'L')
+            self.shiftTree(self.root.right, shift, 'R')
+
+
+    def _addHelper(self, curr, val, parent, text, direction, depth):
         if (curr == None):
             newNode = BSTNode(val)
-            animateAdd(self.scene, self, newNode, parent, self.edges, self.nodes, self.VERTEX_CONF, self.LAYOUT_CONFIG, self.c, text)
+            factor = 0
+            if (depth <= 0):
+                factor = 1
+            else:
+                factor = 2 ** depth
+            animateAdd(self.scene, self, newNode, parent, self.edges, self.nodes, self.VERTEX_CONF, self.LAYOUT_CONFIG, self.c, text, direction, factor)
+            if (depth < 0):
+                self.height += 1     
             return newNode
-        if (curr.val < val):
-            animateTraverse()
-            curr.right = self._addHelper(self, curr.right, val, curr, text)
+        elif (curr.val < val):
+            animateTraverse(self.scene, self, curr, self.c, text)
+            curr.right = self._addHelper(curr.right, val, curr, text, 'R', depth - 1)
         elif (curr.val > val):
-            animateTraverse()
-            curr.left = self._addHelper(self, curr.left, val, curr, text)
-        return curr
-            
-    # Removes a value to a BST 
-    # Time Complexity: Average: O(logn) Worst: O(n)
-    # Author: Ben Zwolenik
-    # Version: 1.0
-    # Date Created: 5/8/2024 @ 10:26 CST 
+            animateTraverse(self.scene, self, curr, self.c, text)
+            curr.left = self._addHelper(curr.left, val, curr, text, 'L', depth - 1)                                  
+
+        return curr  
+              
+    # Removes a value to a BST   
+    # Time Complexity: Average: O(logn) Worst: O(n)  
+    # Author: Ben Zwolenik  
+    # Version: 1.0  
+    # Date Created: 5/8/2024 @ 10:26 CST   
     # Params: self (the current BST object), val (the integer value of node to be removed), parent (the parent node to create edge) NOT NEEDED IN ACTUAL IMPLEMENTATION
-    def remove(self, val):
+    def remove(self, val):  
         if (val == None):
             return
         self._helperRemove(self.root, val, None)
@@ -124,3 +143,28 @@ class BST:
             return self._getHelper(curr.right, val)
         else:
             return True
+        
+    def getHeight(self, root):
+        if (root == None):
+            return -1;
+        leftHeight = self.getHeight(self, root.left)
+        rightHeight = self.getHeight(self, root.right)
+
+        return max(leftHeight, rightHeight) + 1
+    
+    def shiftTree(self, curr, shift, direction):
+        if (curr == None):
+            return
+        if (shift < 0):
+            shift = 1
+
+        shiftTreeAnimate(self.scene, self, curr, shift, direction)
+        newShift = math.floor(shift / 2)
+
+        if (direction == 'L'):
+            self.shiftTree(curr.left, shift + newShift, 'L')
+            self.shiftTree(curr.right, shift - newShift, 'L')
+        elif (direction == 'R'):
+            self.shiftTree(curr.left, shift - newShift, 'R')
+            self.shiftTree(curr.right, shift + newShift, 'R')
+        
