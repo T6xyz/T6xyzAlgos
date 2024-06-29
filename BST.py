@@ -56,6 +56,8 @@ class BST:
             shift = 2 ** (currHeight - 1)
             self.shiftTree(self.root.left, shift, 'L')
             self.shiftTree(self.root.right, shift, 'R')
+            if (self.height % 4 == 0):
+                self.scene.play(self.scene.camera.frame.animate.scale(1.25))
 
 
     def _addHelper(self, curr, val, parent, text, direction, depth):
